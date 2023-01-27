@@ -1,6 +1,7 @@
 <script>
   import axios from 'axios';
   import { API_KEY } from '../components/ApiKey.js';
+  import { toast } from '@zerodevx/svelte-toast'
 
   let chatGPT3Response = '';
 
@@ -34,11 +35,38 @@
         });
       
       console.log(response.data.choices[0].text);
-      chatGPT3Response = response.data.choices[0].text; 
+      chatGPT3Response = response.data.choices[0].text;
+      
+      toast.push('Successfully generated text', {
+        theme: {
+          '--toastColor': 'mintcream',
+          '--toastBackground': 'rgba(72,187,120,0.9)',
+          '--toastBarBackground': '#2F855A'
+        }
+      });
 
   } catch (error) {
       console.log('Inside error handler');
       console.log(error);
+
+      let errorMessage = error.message;
+
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.error &&
+        error.response.data.error.message
+      ) {
+        errorMessage = error.response.data.error.message;
+      }
+
+      toast.push(errorMessage, {
+        theme :{
+          '--toastColor': 'mintcream',
+          '--toastBackground': 'rgba(187,72,72,0.9)',
+          '--toastBarBackground': '#A10000'
+        }
+      });
     }
   }
   </script>
