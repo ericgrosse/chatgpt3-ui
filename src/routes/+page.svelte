@@ -2,11 +2,15 @@
   import axios from 'axios';
   import { API_KEY } from '../components/ApiKey.js';
   import { toast } from '@zerodevx/svelte-toast'
+  import { Stretch } from 'svelte-loading-spinners';
 
+  let apiCallInProgress = false;
   let chatGPT3Response = '';
 
   async function handleClick() {
     try {
+      apiCallInProgress = true;
+
       const response = await axios.post(
         'https://api.openai.com/v1/completions',
         {
@@ -37,6 +41,8 @@
       console.log(response.data.choices[0].text);
       chatGPT3Response = response.data.choices[0].text;
       
+      apiCallInProgress = false;
+
       toast.push('Successfully generated text', {
         theme: {
           '--toastColor': 'mintcream',
@@ -48,6 +54,8 @@
   } catch (error) {
       console.log('Inside error handler');
       console.log(error);
+
+      apiCallInProgress = false;
 
       let errorMessage = error.message;
 
@@ -72,36 +80,47 @@
   </script>
   
   <main class="container">
-    <h3>Required Fields</h3>
-    <input type="text" placeholder="prompt" />
-    <h3>Optional Fields</h3>
+    <h1>ChatGPT3 UI</h1>
 
-    <div class="optional-fields-container">
-      <div class="optional-fields">
-        <input type="text" placeholder="suffix" />
-        <input type="text" placeholder="max_tokens" />
-        <input type="text" placeholder="temperature" />
+    {#if apiCallInProgress}
+      <div>
+        <p>Generating Response...</p>
+        <Stretch size="60" color="#FF3E00" unit="px" duration="1s" />
       </div>
-      <div class="optional-fields">
-        <input type="text" placeholder="top_n" />
-        <input type="text" placeholder="n" />
-        <input type="text" placeholder="stream" />
-      </div>
-      <div class="optional-fields">
-        <input type="text" placeholder="logprobs" />
-        <input type="text" placeholder="echo" />
-        <input type="text" placeholder="stop" />
-      </div>
-      <div class="optional-fields">
-        <input type="text" placeholder="presence_penalty" />
-        <input type="text" placeholder="frequency_penalty" />
-        <input type="text" placeholder="best_of" />
-      </div>
-    </div>
+    {/if}
 
-    <button class="generate-short-story" on:click={handleClick}>Generate Text</button>
-    <p>Output</p>
-    <p>{chatGPT3Response}</p>
+    {#if !apiCallInProgress}
+      <h3>Required Fields</h3>
+      <input type="text" placeholder="prompt" />
+      <h3>Optional Fields</h3>
+
+      <div class="optional-fields-container">
+        <div class="optional-fields">
+          <input type="text" placeholder="suffix" />
+          <input type="text" placeholder="max_tokens" />
+          <input type="text" placeholder="temperature" />
+        </div>
+        <div class="optional-fields">
+          <input type="text" placeholder="top_n" />
+          <input type="text" placeholder="n" />
+          <input type="text" placeholder="stream" />
+        </div>
+        <div class="optional-fields">
+          <input type="text" placeholder="logprobs" />
+          <input type="text" placeholder="echo" />
+          <input type="text" placeholder="stop" />
+        </div>
+        <div class="optional-fields">
+          <input type="text" placeholder="presence_penalty" />
+          <input type="text" placeholder="frequency_penalty" />
+          <input type="text" placeholder="best_of" />
+        </div>
+      </div>
+
+      <button class="generate-short-story" on:click={handleClick}>Generate Text</button>
+      <p>Output</p>
+      <p>{chatGPT3Response}</p>
+    {/if}
   </main>
   
   <style>
