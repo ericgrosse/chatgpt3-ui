@@ -7,30 +7,32 @@
   let apiCallInProgress = false;
   let chatGPT3Response = '';
 
+  let apiPayloadOptions = {
+    model: 'text-davinci-003', // string, required
+    prompt: '', // string or array, optional, defaults to <|endoftext|>
+    suffix: null, // string, optional, defaults to null
+    max_tokens: 150, // integer, optional, defaults to 16
+    temperature: 1, // number, optional, defaults to 1
+    top_p: 1, // number, optional, defaults to 1
+    n: 1, // integer, optional, defaults to 1
+    stream: false, // boolean, optional, defaults to false
+    logprobs: null, // integer, optional, defaults to null
+    echo: false, // boolean, optional, defaults to false
+    stop: null, // string or array, optional, defaults to null
+    presence_penalty: 0, // number, optional, defaults to 0
+    frequency_penalty: 0, // number, optional, defaults to 0
+    best_of: 1, // integer, optional, defaults to 1
+    //logit_bias: null, // map, optional, defaults to null
+    //user: null, // string, optional
+  };
+
   async function handleClick() {
     try {
       apiCallInProgress = true;
 
       const response = await axios.post(
         'https://api.openai.com/v1/completions',
-        {
-          model: 'text-davinci-003', // string, required
-          prompt: '', // string or array, optional, defaults to <|endoftext|>
-          suffix: null, // string, optional, defaults to null
-          max_tokens: 150, // integer, optional, defaults to 16
-          temperature: 1, // number, optional, defaults to 1
-          top_p: 1, // number, optional, defaults to 1
-          n: 1, // integer, optional, defaults to 1
-          stream: false, // boolean, optional, defaults to false
-          logprobs: null, // integer, optional, defaults to null
-          echo: false, // boolean, optional, defaults to false
-          stop: null, // string or array, optional, defaults to null
-          presence_penalty: 0, // number, optional, defaults to 0
-          frequency_penalty: 0, // number, optional, defaults to 0
-          best_of: 1, // integer, optional, defaults to 1
-          //logit_bias: null, // map, optional, defaults to null
-          //user: null, // string, optional
-        },
+        apiPayloadOptions,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -91,30 +93,34 @@
 
     {#if !apiCallInProgress}
       <h3>Required Fields</h3>
-      <input type="text" placeholder="prompt" />
+      <input type="text" placeholder="prompt" bind:value={apiPayloadOptions.prompt} />
       <h3>Optional Fields</h3>
 
       <div class="optional-fields-container">
-        <div class="optional-fields">
-          <input type="text" placeholder="suffix" />
-          <input type="text" placeholder="max_tokens" />
-          <input type="text" placeholder="temperature" />
-        </div>
-        <div class="optional-fields">
-          <input type="text" placeholder="top_n" />
-          <input type="text" placeholder="n" />
-          <input type="text" placeholder="stream" />
-        </div>
-        <div class="optional-fields">
-          <input type="text" placeholder="logprobs" />
-          <input type="text" placeholder="echo" />
-          <input type="text" placeholder="stop" />
-        </div>
-        <div class="optional-fields">
-          <input type="text" placeholder="presence_penalty" />
-          <input type="text" placeholder="frequency_penalty" />
-          <input type="text" placeholder="best_of" />
-        </div>
+        <input type="text" placeholder="suffix" bind:value={apiPayloadOptions.suffix}/>
+        <input type="number" placeholder="max_tokens" bind:value={apiPayloadOptions.max_tokens}/>
+        <input type="number" placeholder="temperature"bind:value={apiPayloadOptions.temperature} />
+        <input type="number" placeholder="top_n" bind:value={apiPayloadOptions.top_n}/>
+        <input type="number" placeholder="n" bind:value={apiPayloadOptions.n}/>
+        <input type="number" placeholder="logprobs"bind:value={apiPayloadOptions.logprobs} />
+        <input type="text" placeholder="stop" bind:value={apiPayloadOptions.stop}/>
+        <input type="number" placeholder="presence_penalty" bind:value={apiPayloadOptions.presence_penalty}/>
+        <input type="number" placeholder="frequency_penalty" bind:value={apiPayloadOptions.frequency_penalty}/>
+        <input type="number" placeholder="best_of" bind:value={apiPayloadOptions.best_of}/>
+
+        <fieldset>
+          <legend>Binary Options</legend>
+      
+          <div>
+            <input type="checkbox" id="stream" name="stream" bind:checked={apiPayloadOptions.stream}>
+            <label for="stream">stream</label>
+          </div>
+      
+          <div>
+            <input type="checkbox" id="echo" name="echo" bind:checked={apiPayloadOptions.echo}>
+            <label for="echo">echo</label>
+          </div>
+        </fieldset>
       </div>
 
       <button class="generate-short-story" on:click={handleClick}>Generate Text</button>
